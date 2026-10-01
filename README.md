@@ -6,7 +6,7 @@ A recurring theme is to keep systems **small, explicit, inspectable, and locally
 
 ## Current projects
 
-Two current lines of experimentation are deliberately separate: AI-assisted software engineering and local document/corpus processing.
+Two current lines of experimentation are deliberately separate: AI-assisted software engineering and local document/corpus processing. They are separate projects today, although the document-search capabilities are intended to become usable by `aiagents` later.
 
 ### AI-assisted software engineering
 
@@ -34,11 +34,11 @@ flowchart LR
 
 ### Local document processing and search
 
-This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular LSA based on SVD.
+This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
 
 - **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation pipeline that turns PDFs into structured text and token data.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
-- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is the SVD step of an LSA-based local document-search pipeline.
+- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is dimensional reduction of matrix representations derived from the document corpus.
 
 #### Data flow
 
@@ -53,15 +53,18 @@ flowchart TB
 
     subgraph SEARCH[Search representation - planned]
         direction LR
-        MATRIX[term-document matrix] --> LSA[LSA / SVD] --> LATENT[latent space]
+        MATRIX[corpus-derived matrix] --> LSA[SVD / latent projection] --> LATENT[latent representation]
     end
 
     PDF --> CONVERT
     TOKENS --> MATRIX
-    LATENT --> QUERY[search / retrieval]
+    LATENT --> RETRIEVE[search / retrieval]
+    RETRIEVE -.->|future capability| AGENT[aiagents]
 ```
 
-This groups the pipeline into two conceptual stages instead of stretching every processing step across one long row. Corpus preparation is the current direction; the search-representation stage, including LSA/SVD and latent-space retrieval, is planned.
+The matrix representation is intentionally left open. It may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window. The point of the planned SVD stage is to experiment with useful lower-dimensional representations rather than to commit the project to one particular matrix construction.
+
+Corpus preparation is the current direction. Matrix construction, SVD/latent representation, retrieval, and integration with `aiagents` are planned stages.
 
 #### Repository dependencies
 
@@ -70,7 +73,8 @@ flowchart LR
     P[pdf_to_text] -->|uses| FS[fsscanner]
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
-    SEARCH[LSA / search implementation] -.->|planned use for SVD| SVD[svdwrapper]
+    SEARCH[document search] -.->|planned use| SVD[svdwrapper]
+    A[aiagents] -.->|planned use of| SEARCH
 ```
 
 ## Build infrastructure
