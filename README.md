@@ -8,18 +8,22 @@ A recurring theme is to keep systems **small, explicit, inspectable, and locally
 
 My current experiments connect **local AI**, **document/corpus processing**, and **numerical methods**.
 
+The diagram separates the **data flow** from repository dependencies: solid arrows labelled `data` show information flowing through the document pipeline; dotted arrows labelled `uses` show which repositories use other components.
+
 ```mermaid
 flowchart LR
-    PDF[PDF corpus] --> P[pdf_to_text]
-    P --> FS[fsscanner]
-    P --> LX[simplelexer]
-    P --> T[token_db]
-    T --> S[search / corpus experiments]
-    S -. latent-space experiments .-> SVD[svdwrapper]
+    PDF[PDF documents] -->|data| P[pdf_to_text]
+    P -->|structured text / tokens| CORPUS[prepared corpus]
+    CORPUS -->|data| SEARCH[search / corpus experiments]
+    SEARCH -->|matrices| SVD[svdwrapper]
 
-    A[aiagents / aifix] --> FS
-    A --> SE[struct_extractors]
-    A -. future retrieval/indexing .-> T
+    P -.->|uses| FS[fsscanner]
+    P -.->|uses| LX[simplelexer]
+    P -.->|uses| T[token_db]
+
+    A[aiagents / aifix] -.->|uses| FS
+    A -.->|uses| SE[struct_extractors]
+    A -.->|future use| T
 
     style A stroke-width:3px
     style P stroke-width:3px
@@ -36,17 +40,17 @@ flowchart LR
 
 ## Build infrastructure
 
-CIDE and its supporting repositories form a small build-infrastructure family. The relationships here are actual build/tool dependencies rather than just thematic grouping.
+CIDE and its supporting repositories form a small build-infrastructure family. Here the arrows explicitly state the relationship instead of relying on arrow direction alone.
 
 ```mermaid
 flowchart LR
-    S[buildscripts] --> B[buildsystems]
-    S --> C[CIDE]
-    B --> C
+    C[CIDE] -->|uses tools from| S[buildscripts]
+    C -->|uses build systems from| B[buildsystems]
+    B -->|uses tools from| S
 
-    C --> N[Neovim]
-    C --> T[tmux]
-    C --> O[other software]
+    C -->|builds, among others| N[Neovim]
+    C -->|builds, among others| T[tmux]
+    C -->|builds| O[other software]
 
     style C stroke-width:3px
 ```
@@ -74,16 +78,16 @@ Several repositories are deliberately small libraries. Some started because I ne
 | **[simplefield](https://github.com/witold-k/simplefield)** | Compact 2D contiguous storage with compile-time row-major/column-major layout |
 | **[unitscale](https://github.com/witold-k/unitscale)** | Zero-overhead numeric wrappers for compile-time SI decimal scaling and angle representation |
 
-Some of these components form small dependency chains of their own:
+Some of these components form small dependency chains of their own. In this diagram every arrow reads as **"uses"** from left to right.
 
 ```mermaid
 flowchart LR
-    LI[lineariterator] --> SF[simplefield]
-    FS[fsscanner] --> PDF[pdf_to_text]
-    LX[simplelexer] --> PDF
-    T[token_db] --> PDF
-    FS --> A[aiagents]
-    SE[struct_extractors] --> A
+    SF[simplefield] -->|uses| LI[lineariterator]
+    PDF[pdf_to_text] -->|uses| FS[fsscanner]
+    PDF -->|uses| LX[simplelexer]
+    PDF -->|uses| T[token_db]
+    A[aiagents] -->|uses| FS
+    A -->|uses| SE[struct_extractors]
 ```
 
 ## What ties these projects together?
