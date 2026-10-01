@@ -16,15 +16,26 @@ The `aiagents` / `aifix` line is its own project area.
 
 It must be presented separately from the local document-processing/search work. Shared libraries may appear in both dependency diagrams where appropriate, but that does not make the two project areas one system.
 
+The separation describes the current project structure. In the longer-term direction, `aiagents` is intended to use the document-search/retrieval capabilities. This future integration should be shown as planned rather than by merging the two project areas into one architecture.
+
 ### Local document processing and search
 
-The document-processing/search line is a separate project area around `pdf_to_text`, corpus preparation, `token_db`, search experiments, and numerical SVD/LSA experiments.
+The document-processing/search line is a separate project area around `pdf_to_text`, corpus preparation, `token_db`, search experiments, and numerical SVD/LSA-style experiments.
 
-The intended future data path includes a classical **LSA (Latent Semantic Analysis)** stage based on **SVD (Singular Value Decomposition)**. `svdwrapper` is intended to provide the SVD functionality for this part of the pipeline.
+The intended future data path includes construction of a matrix representation from the corpus followed by dimensional reduction using SVD and experimentation with latent representations. `svdwrapper` is intended to provide the SVD functionality for this part of the pipeline.
 
-The README should therefore show LSA/SVD as part of the planned direction of the document-search project while clearly marking it as planned until it exists in the implementation.
+Do **not** prescribe a term-document matrix as the only representation. Matrix construction is intentionally experimental. Possible representations include:
 
-Do not merge this conceptually with `aiagents` / `aifix` merely because both may use some of the same supporting libraries.
+- a conventional term-document matrix;
+- a word co-occurrence matrix;
+- co-occurrence counts produced by a sliding window over the token stream;
+- other corpus-derived matrix representations suitable for SVD experiments.
+
+The README should describe this generically as a **corpus-derived matrix** (or equivalent wording) unless a particular representation has actually been selected and implemented.
+
+The README should show SVD/latent representation as part of the planned direction of the document-search project while clearly marking it as planned until it exists in the implementation.
+
+Do not merge this conceptually with `aiagents` / `aifix`. The document-search project should remain understandable on its own, with future `aiagents` consumption shown as an integration point.
 
 ### Build infrastructure
 
@@ -93,18 +104,22 @@ For the document-processing/search project, the intended conceptual flow is alon
 
 ```text
 PDF documents
-    -> PDF conversion
-    -> normalized text
+    -> PDF conversion / normalization
     -> tokenization / corpus data
-    -> term-document representation
-    -> LSA / SVD projection          [planned]
-    -> latent-space representation   [planned]
-    -> search / retrieval             [planned]
+    -> corpus-derived matrix
+    -> SVD / latent projection       [planned]
+    -> latent representation         [planned]
+    -> search / retrieval            [planned]
+    -> aiagents                      [future integration]
 ```
 
-The SVD/LSA stage is not merely an unrelated numerical experiment: it is intended to become part of the document-search data path. Until implemented, the README must visually and textually distinguish these stages as **planned**.
+The matrix stage must remain generic while the representation is still being explored. In particular, it may represent terms versus documents or word co-occurrence derived from a sliding window.
 
-Repository dependencies such as `pdf_to_text` using `fsscanner`, `simplelexer`, or `token_db`, and the planned search implementation using `svdwrapper`, belong in a separate dependency diagram.
+The SVD/latent stage is not merely an unrelated numerical experiment: it is intended to become part of the document-search data path. Until implemented, the README must visually and textually distinguish these stages as **planned**.
+
+The future use of the resulting retrieval capability by `aiagents` should also be visible, but must be marked as future/planned integration.
+
+Repository dependencies such as `pdf_to_text` using `fsscanner`, `simplelexer`, or `token_db`, the planned search implementation using `svdwrapper`, and the future use of document search by `aiagents` belong in a separate dependency/integration diagram.
 
 ### Mermaid
 
