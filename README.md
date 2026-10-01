@@ -4,43 +4,68 @@ I build software systems and small, focused tools, mostly in Rust. My projects r
 
 A recurring theme is to keep systems **small, explicit, inspectable, and locally controllable**: simple interfaces, limited dependencies, clear boundaries, and components that can be understood independently.
 
-## Current focus
+## Current projects
 
-My current experiments connect **local AI**, **document/corpus processing**, and **numerical methods**.
+Two current lines of experimentation are deliberately separate: AI-assisted software engineering and local document/corpus processing.
 
-The diagram separates the **data flow** from repository dependencies: solid arrows labelled `data` show information flowing through the document pipeline; dotted arrows labelled `uses` show which repositories use other components.
+### AI-assisted software engineering
+
+**[aiagents](https://github.com/witold-k/aiagents)** is an experimental local-first agentic runtime. `aifix` is one application/workflow built on it for AI-assisted software engineering: analysis, build/test/fix cycles, code and documentation generation, reviews, and release documentation.
+
+#### Workflow
 
 ```mermaid
 flowchart LR
-    PDF[PDF documents] -->|data| P[pdf_to_text]
-    P -->|structured text / tokens| CORPUS[prepared corpus]
-    CORPUS -->|data| SEARCH[search / corpus experiments]
-    SEARCH -->|matrices| SVD[svdwrapper]
-
-    P -.->|uses| FS[fsscanner]
-    P -.->|uses| LX[simplelexer]
-    P -.->|uses| T[token_db]
-
-    A[aiagents / aifix] -.->|uses| FS
-    A -.->|uses| SE[struct_extractors]
-    A -.->|future use| T
-
-    style A stroke-width:3px
-    style P stroke-width:3px
-    style T stroke-width:3px
-    style SVD stroke-width:3px
+    SRC[Source repository] --> ANALYZE[Analyze]
+    ANALYZE --> CHANGE[Generate / modify]
+    CHANGE --> VERIFY[Build / test / review]
+    VERIFY --> RESULT[Result]
+    VERIFY -->|problems found| ANALYZE
 ```
 
-### AI & local information processing
+#### Repository dependencies
 
-- **[aiagents](https://github.com/witold-k/aiagents)** — experimental local-first agentic runtime for AI-assisted software engineering. It runs multi-step workflows for analysis, build/test/fix cycles, code and documentation generation, reviews, and release documentation.
-- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation pipeline that turns PDFs into structured text and token data, currently using GROBID together with my filesystem and tokenization components.
+```mermaid
+flowchart LR
+    A[aiagents / aifix] -->|uses| FS[fsscanner]
+    A -->|uses| SE[struct_extractors]
+    A -.->|planned use| T[token_db]
+```
+
+### Local document processing and search
+
+This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods.
+
+- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation pipeline that turns PDFs into structured text and token data.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. One motivation is experimentation with classical latent-space methods for local document search.
 
+#### Data flow
+
+```mermaid
+flowchart LR
+    PDF[PDF documents] --> CONVERT[PDF conversion]
+    CONVERT --> TEXT[normalized text]
+    TEXT --> TOKENS[tokenization / corpus data]
+    TOKENS --> INDEX[search representation]
+    INDEX --> QUERY[search / retrieval]
+```
+
+The exact search/indexing stage is experimental; the diagram shows the intended information flow rather than repository dependencies.
+
+#### Repository dependencies
+
+```mermaid
+flowchart LR
+    P[pdf_to_text] -->|uses| FS[fsscanner]
+    P -->|uses| LX[simplelexer]
+    P -->|uses| T[token_db]
+    SEARCH[search experiments] -->|uses for SVD experiments| SVD[svdwrapper]
+```
+
 ## Build infrastructure
 
-CIDE and its supporting repositories form a small build-infrastructure family. Here the arrows explicitly state the relationship instead of relying on arrow direction alone.
+CIDE and its supporting repositories form a small build-infrastructure family. This diagram shows **repository/tool relationships**, not a build signal flow.
 
 ```mermaid
 flowchart LR
@@ -78,7 +103,9 @@ Several repositories are deliberately small libraries. Some started because I ne
 | **[simplefield](https://github.com/witold-k/simplefield)** | Compact 2D contiguous storage with compile-time row-major/column-major layout |
 | **[unitscale](https://github.com/witold-k/unitscale)** | Zero-overhead numeric wrappers for compile-time SI decimal scaling and angle representation |
 
-Some of these components form small dependency chains of their own. In this diagram every arrow reads as **"uses"** from left to right.
+### Library dependencies
+
+Every arrow below explicitly reads as **"uses"**.
 
 ```mermaid
 flowchart LR
