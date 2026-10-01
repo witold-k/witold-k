@@ -18,7 +18,11 @@ It must be presented separately from the local document-processing/search work. 
 
 ### Local document processing and search
 
-The document-processing/search line is a separate project area around `pdf_to_text`, corpus preparation, `token_db`, search experiments, and numerical/SVD experiments.
+The document-processing/search line is a separate project area around `pdf_to_text`, corpus preparation, `token_db`, search experiments, and numerical SVD/LSA experiments.
+
+The intended future data path includes a classical **LSA (Latent Semantic Analysis)** stage based on **SVD (Singular Value Decomposition)**. `svdwrapper` is intended to provide the SVD functionality for this part of the pipeline.
+
+The README should therefore show LSA/SVD as part of the planned direction of the document-search project while clearly marking it as planned until it exists in the implementation.
 
 Do not merge this conceptually with `aiagents` / `aifix` merely because both may use some of the same supporting libraries.
 
@@ -85,18 +89,22 @@ The direction alone must never be relied upon to communicate the meaning.
 
 Flow diagrams should describe the actual processing direction and should use stage names rather than library dependencies where possible.
 
-For the document-processing project, the conceptual flow is along the lines of:
+For the document-processing/search project, the intended conceptual flow is along the lines of:
 
 ```text
 PDF documents
     -> PDF conversion
     -> normalized text
     -> tokenization / corpus data
-    -> search representation
-    -> search / retrieval
+    -> term-document representation
+    -> LSA / SVD projection          [planned]
+    -> latent-space representation   [planned]
+    -> search / retrieval             [planned]
 ```
 
-Repository dependencies such as `pdf_to_text` using `fsscanner`, `simplelexer`, or `token_db` belong in a separate dependency diagram.
+The SVD/LSA stage is not merely an unrelated numerical experiment: it is intended to become part of the document-search data path. Until implemented, the README must visually and textually distinguish these stages as **planned**.
+
+Repository dependencies such as `pdf_to_text` using `fsscanner`, `simplelexer`, or `token_db`, and the planned search implementation using `svdwrapper`, belong in a separate dependency diagram.
 
 ### Mermaid
 
