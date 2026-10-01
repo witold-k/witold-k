@@ -1,6 +1,6 @@
 # Witold Kaminski
 
-I build software systems and small, focused tools, mostly in Rust. My projects range from local AI experiments and document processing to build environments, developer tooling, and low-level reusable libraries.
+I build software systems and small, focused tools, mostly in Rust. My projects range from local AI experiments and document processing to build infrastructure, developer tooling, and low-level reusable libraries.
 
 A recurring theme is to keep systems **small, explicit, inspectable, and locally controllable**: simple interfaces, limited dependencies, clear boundaries, and components that can be understood independently.
 
@@ -34,26 +34,32 @@ flowchart LR
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. One motivation is experimentation with classical latent-space methods for local document search.
 
-## Build systems & development environment
+## Build infrastructure
 
-A second group of projects grew out of building my own development environment and software stacks.
+CIDE and its supporting repositories form a small build-infrastructure family. The relationships here are actual build/tool dependencies rather than just thematic grouping.
 
 ```mermaid
-flowchart TD
-    C[CIDE] --> BS[buildsystems]
-    C --> U[buildscripts]
-    C --> STACK[software stacks]
-    STACK --> DEV[development tools]
-    STACK --> MM[graphics / multimedia]
-    STACK --> AI[AI / LLM software]
+flowchart LR
+    S[buildscripts] --> B[buildsystems]
+    S --> C[CIDE]
+    B --> C
 
-    N[Neovim + tmux] --> DEV
+    C --> N[Neovim]
+    C --> T[tmux]
+    C --> O[other software]
+
+    style C stroke-width:3px
 ```
 
-- **[cide](https://github.com/witold-k/cide)** — modular build environment for constructing complete software stacks independently of the host system. Its guiding idea is: **build the software, not the operating system**.
-- **[buildsystems](https://github.com/witold-k/buildsystems)** — build-system/tooling definitions used as part of CIDE.
-- **[buildscripts](https://github.com/witold-k/buildscripts)** — personal utilities for build workflows, version control, containers, and related development tasks.
-- **[neovim-tmux-integration](https://github.com/witold-k/neovim-tmux-integration)** — my persistent Neovim + tmux development environment, including LSP, debugging, Git, build-output handling, and language-specific tooling.
+- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Among many other packages, CIDE can build Neovim and tmux.
+- **[buildsystems](https://github.com/witold-k/buildsystems)** — provides build systems and related tooling needed to build CIDE; it in turn uses utilities from `buildscripts`.
+- **[buildscripts](https://github.com/witold-k/buildscripts)** — shared utilities used by both CIDE and `buildsystems`, alongside other personal helpers for build workflows, version control, containers, and related tasks.
+
+## Development environment
+
+**[neovim-tmux-integration](https://github.com/witold-k/neovim-tmux-integration)** is a separate project: my personal day-to-day development environment built around a persistent Neovim server inside tmux, with LSP, debugging, Git integration, build-output handling, and language-specific tooling.
+
+There is a practical connection to CIDE, but not a repository dependency: CIDE can build Neovim and tmux as software packages, while `neovim-tmux-integration` configures and combines those tools into the environment I actually work in.
 
 ## Rust building blocks
 
@@ -88,7 +94,7 @@ They are not intended to form one monolithic framework. The common thread is the
 - keep abstractions narrow and boundaries explicit;
 - prefer inspectable mechanisms over unnecessary complexity;
 - use Rust where ownership, performance, or strong compile-time modelling are useful;
-- experiment across layers — from low-level iteration and numerical code to build systems and AI workflows.
+- experiment across layers — from low-level iteration and numerical code to build infrastructure and AI workflows.
 
 Most repositories are personal or experimental projects and are at different levels of maturity. Their individual READMEs describe the current status and limitations.
 
