@@ -79,7 +79,7 @@ flowchart LR
 
 ## Build infrastructure
 
-CIDE and its supporting repositories form a small build-infrastructure family. This diagram shows **repository/tool relationships**, not a build signal flow.
+CIDE and its supporting repositories form a small build-infrastructure family. This diagram shows **repository/tool relationships** and the broad software groups represented by CIDE's module definitions, rather than singling out individual packages such as Neovim or tmux.
 
 ```mermaid
 flowchart LR
@@ -87,14 +87,12 @@ flowchart LR
     C -->|uses build systems from| B[buildsystems]
     B -->|uses tools from| S
 
-    C -->|builds, among others| N[Neovim]
-    C -->|builds, among others| T[tmux]
-    C -->|builds| O[other software]
+    C -->|builds software from| G["module groups<br/>base · IDE · compression · crypto<br/>audio · graphics/images · documents<br/>input · interpreters · math · networking<br/>media · LLM / diffusion · ..."]
 
     style C stroke-width:3px
 ```
 
-- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Among many other packages, CIDE can build Neovim and tmux.
+- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Its module definitions cover groups such as base software, IDE/tools, compression, cryptography, audio, graphics/images, documents, input, interpreters, mathematics, networking, media, and increasingly AI-related software such as LLM and diffusion components.
 - **[buildsystems](https://github.com/witold-k/buildsystems)** — provides build systems and related tooling needed to build CIDE; it in turn uses utilities from `buildscripts`.
 - **[buildscripts](https://github.com/witold-k/buildscripts)** — shared utilities used by both CIDE and `buildsystems`, alongside other personal helpers for build workflows, version control, containers, and related tasks.
 
@@ -102,7 +100,7 @@ flowchart LR
 
 **[neovim-tmux-integration](https://github.com/witold-k/neovim-tmux-integration)** is a separate project: my personal day-to-day development environment built around a persistent Neovim server inside tmux, with LSP, debugging, Git integration, build-output handling, and language-specific tooling.
 
-There is a practical connection to CIDE, but not a repository dependency: CIDE can build Neovim and tmux as software packages, while `neovim-tmux-integration` configures and combines those tools into the environment I actually work in.
+There is a practical connection to CIDE, but not a repository dependency: Neovim and tmux are two packages in CIDE's broader `ide` module group, while `neovim-tmux-integration` configures and combines those tools into the environment I actually work in.
 
 ## Rust building blocks
 
