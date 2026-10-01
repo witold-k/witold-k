@@ -43,17 +43,25 @@ This is a separate line of work around turning local documents into a searchable
 #### Data flow
 
 ```mermaid
-flowchart LR
-    PDF[PDF documents] --> CONVERT[PDF conversion]
-    CONVERT --> TEXT[normalized text]
-    TEXT --> TOKENS[tokenization / corpus data]
-    TOKENS --> MATRIX[term-document representation]
-    MATRIX -.->|planned| LSA[LSA / SVD projection]
-    LSA -.->|planned| LATENT[latent-space representation]
-    LATENT -.->|planned| QUERY[search / retrieval]
+flowchart TB
+    PDF[PDF documents]
+
+    subgraph PREP[Corpus preparation]
+        direction LR
+        CONVERT[convert / normalize] --> TOKENS[tokenize]
+    end
+
+    subgraph SEARCH[Search representation - planned]
+        direction LR
+        MATRIX[term-document matrix] --> LSA[LSA / SVD] --> LATENT[latent space]
+    end
+
+    PDF --> CONVERT
+    TOKENS --> MATRIX
+    LATENT --> QUERY[search / retrieval]
 ```
 
-The PDF-to-corpus stages describe the current direction of the processing pipeline. The LSA/SVD and latent-space search stages are planned and are therefore shown explicitly as planned rather than as existing functionality.
+This groups the pipeline into two conceptual stages instead of stretching every processing step across one long row. Corpus preparation is the current direction; the search-representation stage, including LSA/SVD and latent-space retrieval, is planned.
 
 #### Repository dependencies
 
