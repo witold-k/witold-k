@@ -34,11 +34,11 @@ flowchart LR
 
 ### Local document processing and search
 
-This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods.
+This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular LSA based on SVD.
 
 - **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation pipeline that turns PDFs into structured text and token data.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
-- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. One motivation is experimentation with classical latent-space methods for local document search.
+- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is the SVD step of an LSA-based local document-search pipeline.
 
 #### Data flow
 
@@ -47,11 +47,13 @@ flowchart LR
     PDF[PDF documents] --> CONVERT[PDF conversion]
     CONVERT --> TEXT[normalized text]
     TEXT --> TOKENS[tokenization / corpus data]
-    TOKENS --> INDEX[search representation]
-    INDEX --> QUERY[search / retrieval]
+    TOKENS --> MATRIX[term-document representation]
+    MATRIX -.->|planned| LSA[LSA / SVD projection]
+    LSA -.->|planned| LATENT[latent-space representation]
+    LATENT -.->|planned| QUERY[search / retrieval]
 ```
 
-The exact search/indexing stage is experimental; the diagram shows the intended information flow rather than repository dependencies.
+The PDF-to-corpus stages describe the current direction of the processing pipeline. The LSA/SVD and latent-space search stages are planned and are therefore shown explicitly as planned rather than as existing functionality.
 
 #### Repository dependencies
 
@@ -60,7 +62,7 @@ flowchart LR
     P[pdf_to_text] -->|uses| FS[fsscanner]
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
-    SEARCH[search experiments] -->|uses for SVD experiments| SVD[svdwrapper]
+    SEARCH[LSA / search implementation] -.->|planned use for SVD| SVD[svdwrapper]
 ```
 
 ## Build infrastructure
