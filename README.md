@@ -41,7 +41,8 @@ This is a separate line of work around turning local documents into a searchable
 - **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — constructs corpus-derived matrix representations for the document-search experiments.
-- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is dimensional reduction of matrix representations derived from the document corpus.
+- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations.
+- **[svd_retrieval](https://github.com/witold-k/svd_retrieval)** — retrieval layer for the SVD-based document-search experiment. It combines corpus-derived matrices with `svdwrapper` to build latent representations, project queries into the same space, compare them with indexed content, and rank retrieval results.
 
 #### Data flow
 
@@ -55,22 +56,26 @@ flowchart TB
         CONVERT --> TOKENS[tokenize]
     end
 
-    subgraph SEARCH[Search representation - planned]
+    subgraph SEARCH[Search representation and retrieval]
         direction LR
-        MATRIX[corpus_matrix] --> LSA[SVD / latent projection] --> LATENT[latent representation]
+        MATRIX[corpus_matrix] --> RETRIEVAL[svd_retrieval]
+        SVD[svdwrapper] --> RETRIEVAL
+        RETRIEVAL --> LATENT[latent representation]
+        LATENT --> RETRIEVE[query projection / similarity / ranking]
     end
 
     PDF --> BACKENDS
     TOKENS --> MATRIX
-    LATENT --> RETRIEVE[search / retrieval]
     RETRIEVE -.->|future capability| AGENT[aiagents]
 ```
 
 The `pdf_to_text` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
 
-`corpus_matrix` is the matrix-construction stage of this pipeline. The representation is intentionally open to experimentation: it may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window. The planned SVD stage is intended to explore useful lower-dimensional representations rather than commit the project to one particular matrix construction.
+`corpus_matrix` is the matrix-construction stage of this pipeline. The representation is intentionally open to experimentation: it may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window.
 
-Corpus preparation and matrix construction now have dedicated repositories. SVD/latent representation, retrieval, and integration with `aiagents` remain planned stages.
+`svd_retrieval` is the retrieval-specific layer above those matrices. It uses `svdwrapper` for dense SVD and is intended to own the parts that turn a corpus representation into something searchable: latent-space construction, document or chunk representation, query projection, similarity calculation, and ranking. The exact retrieval model is still deliberately experimental rather than fixed behind a premature abstraction.
+
+Corpus preparation, matrix construction, and the SVD-based retrieval layer now have dedicated repositories. Integration with `aiagents` remains a future step.
 
 #### Repository dependencies
 
@@ -84,9 +89,9 @@ flowchart LR
     CM[corpus_matrix] -->|uses corpus data from| T
     CM -->|uses| SF[simplefield]
     CM -->|uses| LI[lineariterator]
-    SEARCH[document search] -->|matrix construction| CM
-    SEARCH -.->|planned use| SVD[svdwrapper]
-    A[aiagents] -.->|planned use of| SEARCH
+    R[svd_retrieval] -->|uses matrix representations from| CM
+    R -->|uses| SVD[svdwrapper]
+    A[aiagents] -.->|planned use of| R
 ```
 
 ## Build infrastructure
