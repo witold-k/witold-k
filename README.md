@@ -30,6 +30,8 @@ flowchart LR
     A[aiagents / aifix] -->|uses| FS[fsscanner]
     A -->|uses| SE[struct_extractors]
     A -.->|planned use| T[token_db]
+    A -->|can use local LLM runtime| LL[llama.cpp]
+    C[CIDE] -->|builds| LL
 ```
 
 ### Local document processing and search
@@ -91,11 +93,13 @@ flowchart LR
     B -->|uses tools from| S
 
     C -->|builds software from| G["module groups<br/>base · IDE · compression · crypto<br/>audio · graphics/images · documents<br/>input · interpreters · math · networking<br/>media · LLM / diffusion · ..."]
+    C -->|builds| LL[llama.cpp]
+    LL -.->|local LLM runtime for| A[aiagents]
 
     style C stroke-width:3px
 ```
 
-- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Its module definitions cover groups such as base software, IDE/tools, compression, cryptography, audio, graphics/images, documents, input, interpreters, mathematics, networking, media, and increasingly AI-related software such as LLM and diffusion components.
+- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Its module definitions cover groups such as base software, IDE/tools, compression, cryptography, audio, graphics/images, documents, input, interpreters, mathematics, networking, media, and increasingly AI-related software such as LLM and diffusion components. In particular, CIDE builds `llama.cpp`, providing a locally controlled LLM runtime that is relevant to `aiagents`.
 - **[buildsystems](https://github.com/witold-k/buildsystems)** — provides build systems and related tooling needed to build CIDE; it in turn uses utilities from `buildscripts`.
 - **[buildscripts](https://github.com/witold-k/buildscripts)** — shared utilities used by both CIDE and `buildsystems`, alongside other personal helpers for build workflows, version control, containers, and related tasks.
 
