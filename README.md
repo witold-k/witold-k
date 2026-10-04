@@ -38,7 +38,7 @@ flowchart LR
 
 This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
 
-- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus.
+- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — constructs corpus-derived matrix representations for the document-search experiments.
 - **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is dimensional reduction of matrix representations derived from the document corpus.
@@ -49,7 +49,7 @@ This is a separate line of work around turning local documents into a searchable
 flowchart TB
     PDF[PDF documents]
 
-    subgraph PREP[Corpus preparation - pdf_to_text wrapper]
+    subgraph PREP[One-time / offline corpus preparation - pdf_to_text wrapper]
         direction LR
         BACKENDS[MinerU / GROBID] --> CONVERT[pdf_to_text: normalize / organize]
         CONVERT --> TOKENS[tokenize]
@@ -65,6 +65,8 @@ flowchart TB
     LATENT --> RETRIEVE[search / retrieval]
     RETRIEVE -.->|future capability| AGENT[aiagents]
 ```
+
+The `pdf_to_text` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
 
 `corpus_matrix` is the matrix-construction stage of this pipeline. The representation is intentionally open to experimentation: it may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window. The planned SVD stage is intended to explore useful lower-dimensional representations rather than commit the project to one particular matrix construction.
 
