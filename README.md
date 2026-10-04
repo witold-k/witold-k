@@ -38,7 +38,7 @@ flowchart LR
 
 This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
 
-- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation pipeline that turns PDFs into structured text and token data.
+- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — constructs corpus-derived matrix representations for the document-search experiments.
 - **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is dimensional reduction of matrix representations derived from the document corpus.
@@ -49,9 +49,10 @@ This is a separate line of work around turning local documents into a searchable
 flowchart TB
     PDF[PDF documents]
 
-    subgraph PREP[Corpus preparation]
+    subgraph PREP[Corpus preparation - pdf_to_text wrapper]
         direction LR
-        CONVERT[convert / normalize] --> TOKENS[tokenize]
+        BACKENDS[MinerU / GROBID] --> CONVERT[pdf_to_text: normalize / organize]
+        CONVERT --> TOKENS[tokenize]
     end
 
     subgraph SEARCH[Search representation - planned]
@@ -59,7 +60,7 @@ flowchart TB
         MATRIX[corpus_matrix] --> LSA[SVD / latent projection] --> LATENT[latent representation]
     end
 
-    PDF --> CONVERT
+    PDF --> BACKENDS
     TOKENS --> MATRIX
     LATENT --> RETRIEVE[search / retrieval]
     RETRIEVE -.->|future capability| AGENT[aiagents]
@@ -73,7 +74,9 @@ Corpus preparation and matrix construction now have dedicated repositories. SVD/
 
 ```mermaid
 flowchart LR
-    P[pdf_to_text] -->|uses| FS[fsscanner]
+    P[pdf_to_text wrapper] -->|uses| MU[MinerU]
+    P -->|uses| GR[GROBID]
+    P -->|uses| FS[fsscanner]
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
@@ -129,7 +132,9 @@ Every arrow below explicitly reads as **"uses"**.
 ```mermaid
 flowchart LR
     SF[simplefield] -->|uses| LI[lineariterator]
-    PDF[pdf_to_text] -->|uses| FS[fsscanner]
+    PDF[pdf_to_text wrapper] -->|uses| MU[MinerU]
+    PDF -->|uses| GR[GROBID]
+    PDF -->|uses| FS[fsscanner]
     PDF -->|uses| LX[simplelexer]
     PDF -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
