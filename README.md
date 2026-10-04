@@ -80,6 +80,8 @@ flowchart LR
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
+    CM -->|uses| SF[simplefield]
+    CM -->|uses| LI[lineariterator]
     SEARCH[document search] -->|matrix construction| CM
     SEARCH -.->|planned use| SVD[svdwrapper]
     A[aiagents] -.->|planned use of| SEARCH
@@ -138,6 +140,8 @@ flowchart LR
     PDF -->|uses| LX[simplelexer]
     PDF -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
+    CM -->|uses| SF
+    CM -->|uses| LI
     A[aiagents] -->|uses| FS
     A -->|uses| SE[struct_extractors]
 ```
