@@ -30,13 +30,15 @@ flowchart LR
     A[aiagents / aifix] -->|uses| FS[fsscanner]
     A -->|uses| SE[struct_extractors]
     A -.->|planned use| T[token_db]
+    A -->|can use local LLM runtime| LL[llama.cpp]
+    C[CIDE] -->|builds| LL
 ```
 
 ### Local document processing and search
 
 This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
 
-- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — corpus-preparation pipeline that turns PDFs into structured text and token data.
+- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — constructs corpus-derived matrix representations for the document-search experiments.
 - **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations. A planned use is dimensional reduction of matrix representations derived from the document corpus.
@@ -47,9 +49,10 @@ This is a separate line of work around turning local documents into a searchable
 flowchart TB
     PDF[PDF documents]
 
-    subgraph PREP[Corpus preparation]
+    subgraph PREP[One-time / offline corpus preparation - pdf_to_text wrapper]
         direction LR
-        CONVERT[convert / normalize] --> TOKENS[tokenize]
+        BACKENDS[MinerU / GROBID] --> CONVERT[pdf_to_text: normalize / organize]
+        CONVERT --> TOKENS[tokenize]
     end
 
     subgraph SEARCH[Search representation - planned]
@@ -57,11 +60,13 @@ flowchart TB
         MATRIX[corpus_matrix] --> LSA[SVD / latent projection] --> LATENT[latent representation]
     end
 
-    PDF --> CONVERT
+    PDF --> BACKENDS
     TOKENS --> MATRIX
     LATENT --> RETRIEVE[search / retrieval]
     RETRIEVE -.->|future capability| AGENT[aiagents]
 ```
+
+The `pdf_to_text` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
 
 `corpus_matrix` is the matrix-construction stage of this pipeline. The representation is intentionally open to experimentation: it may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window. The planned SVD stage is intended to explore useful lower-dimensional representations rather than commit the project to one particular matrix construction.
 
@@ -71,10 +76,14 @@ Corpus preparation and matrix construction now have dedicated repositories. SVD/
 
 ```mermaid
 flowchart LR
-    P[pdf_to_text] -->|uses| FS[fsscanner]
+    P[pdf_to_text wrapper] -->|uses| MU[MinerU]
+    P -->|uses| GR[GROBID]
+    P -->|uses| FS[fsscanner]
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
+    CM -->|uses| SF[simplefield]
+    CM -->|uses| LI[lineariterator]
     SEARCH[document search] -->|matrix construction| CM
     SEARCH -.->|planned use| SVD[svdwrapper]
     A[aiagents] -.->|planned use of| SEARCH
@@ -91,11 +100,13 @@ flowchart LR
     B -->|uses tools from| S
 
     C -->|builds software from| G["module groups<br/>base · IDE · compression · crypto<br/>audio · graphics/images · documents<br/>input · interpreters · math · networking<br/>media · LLM / diffusion · ..."]
+    C -->|builds| LL[llama.cpp]
+    LL -.->|local LLM runtime for| A[aiagents]
 
     style C stroke-width:3px
 ```
 
-- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Its module definitions cover groups such as base software, IDE/tools, compression, cryptography, audio, graphics/images, documents, input, interpreters, mathematics, networking, media, and increasingly AI-related software such as LLM and diffusion components.
+- **[cide](https://github.com/witold-k/cide)** — modular build environment for building software independently of the host system. It uses the build systems supplied by `buildsystems` and utilities from `buildscripts`. Its module definitions cover groups such as base software, IDE/tools, compression, cryptography, audio, graphics/images, documents, input, interpreters, mathematics, networking, media, and increasingly AI-related software such as LLM and diffusion components. In particular, CIDE builds `llama.cpp`, providing a locally controlled LLM runtime that is relevant to `aiagents`.
 - **[buildsystems](https://github.com/witold-k/buildsystems)** — provides build systems and related tooling needed to build CIDE; it in turn uses utilities from `buildscripts`.
 - **[buildscripts](https://github.com/witold-k/buildscripts)** — shared utilities used by both CIDE and `buildsystems`, alongside other personal helpers for build workflows, version control, containers, and related tasks.
 
@@ -125,10 +136,14 @@ Every arrow below explicitly reads as **"uses"**.
 ```mermaid
 flowchart LR
     SF[simplefield] -->|uses| LI[lineariterator]
-    PDF[pdf_to_text] -->|uses| FS[fsscanner]
+    PDF[pdf_to_text wrapper] -->|uses| MU[MinerU]
+    PDF -->|uses| GR[GROBID]
+    PDF -->|uses| FS[fsscanner]
     PDF -->|uses| LX[simplelexer]
     PDF -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
+    CM -->|uses| SF
+    CM -->|uses| LI
     A[aiagents] -->|uses| FS
     A -->|uses| SE[struct_extractors]
 ```
