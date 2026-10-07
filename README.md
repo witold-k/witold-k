@@ -134,6 +134,7 @@ Several repositories are deliberately small libraries. Some started because I ne
 | **[simplefield](https://github.com/witold-k/simplefield)** | Compact 2D contiguous storage with compile-time row-major/column-major layout |
 | **[unitscale](https://github.com/witold-k/unitscale)** | Zero-overhead numeric wrappers for compile-time SI decimal scaling and angle representation |
 | **[sequencetransform](https://github.com/witold-k/sequencetransform)** | Archive of sequence-processing ideas and experiments: composable transforms/selectors, trigger-based two-sequence processing, and ordinal-pattern tokenization of sliding windows |
+| **[logicequation](https://github.com/witold-k/logicequation)** | Experimental symbolic Boolean-expression and bit-vector library built around shared logic graphs; my first Rust library, now polished and documented but currently on ice because its original use case is no longer active |
 
 ### Library dependencies
 
