@@ -38,11 +38,12 @@ flowchart LR
 
 This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
 
-- **[pdf_to_text](https://github.com/witold-k/pdf_to_text)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
+- **[pdf_to_text_wrapper](https://github.com/witold-k/pdf_to_text_wrapper)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
+- **[lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper)** — wrapper for lemmatization in the corpus-processing experiments.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
 - **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — constructs corpus-derived matrix representations for the document-search experiments.
-- **[svdwrapper](https://github.com/witold-k/svdwrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations.
-- **[svd_retrieval](https://github.com/witold-k/svd_retrieval)** — retrieval layer for the SVD-based document-search experiment. It combines corpus-derived matrices with `svdwrapper` to build latent representations, project queries into the same space, compare them with indexed content, and rank retrieval results.
+- **[svd_wrapper](https://github.com/witold-k/svd_wrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations.
+- **[svd_retrieval](https://github.com/witold-k/svd_retrieval)** — retrieval layer for the SVD-based document-search experiment. It combines corpus-derived matrices with `svd_wrapper` to build latent representations, project queries into the same space, compare them with indexed content, and rank retrieval results.
 
 #### Data flow
 
@@ -50,30 +51,32 @@ This is a separate line of work around turning local documents into a searchable
 flowchart TB
     PDF[PDF documents]
 
-    subgraph PREP[One-time / offline corpus preparation - pdf_to_text wrapper]
+    subgraph PREP[One-time / offline corpus preparation - pdf_to_text_wrapper]
         direction LR
-        BACKENDS[MinerU / GROBID] --> CONVERT[pdf_to_text: normalize / organize]
-        CONVERT --> TOKENS[tokenize]
+        BACKENDS[MinerU / GROBID] --> CONVERT[pdf_to_text_wrapper: normalize / organize]
+        CONVERT --> LEMMA[lemmatizer_wrapper: lemmatize / prepare corpus data]
     end
 
     subgraph SEARCH[Search representation and retrieval]
         direction LR
         MATRIX[corpus_matrix] --> RETRIEVAL[svd_retrieval]
-        SVD[svdwrapper] --> RETRIEVAL
+        SVD[svd_wrapper] --> RETRIEVAL
         RETRIEVAL --> LATENT[latent representation]
         LATENT --> RETRIEVE[query projection / similarity / ranking]
     end
 
     PDF --> BACKENDS
-    TOKENS --> MATRIX
+    LEMMA --> MATRIX
     RETRIEVE -.->|future capability| AGENT[aiagents]
 ```
 
-The `pdf_to_text` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
+The corpus data pipeline passes output from `pdf_to_text_wrapper` to `lemmatizer_wrapper`, then passes the lemmatizer's output to `corpus_matrix` for matrix construction. This describes data flow, not necessarily direct Rust crate dependencies.
+
+The `pdf_to_text_wrapper` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
 
 `corpus_matrix` is the matrix-construction stage of this pipeline. The representation is intentionally open to experimentation: it may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window.
 
-`svd_retrieval` is the retrieval-specific layer above those matrices. It uses `svdwrapper` for dense SVD and is intended to own the parts that turn a corpus representation into something searchable: latent-space construction, document or chunk representation, query projection, similarity calculation, and ranking. The exact retrieval model is still deliberately experimental rather than fixed behind a premature abstraction.
+`svd_retrieval` is the retrieval-specific layer above those matrices. It uses `svd_wrapper` for dense SVD and is intended to own the parts that turn a corpus representation into something searchable: latent-space construction, document or chunk representation, query projection, similarity calculation, and ranking. The exact retrieval model is still deliberately experimental rather than fixed behind a premature abstraction.
 
 Corpus preparation, matrix construction, and the SVD-based retrieval layer now have dedicated repositories. Integration with `aiagents` remains a future step.
 
@@ -81,16 +84,17 @@ Corpus preparation, matrix construction, and the SVD-based retrieval layer now h
 
 ```mermaid
 flowchart LR
-    P[pdf_to_text wrapper] -->|uses| MU[MinerU]
+    P[pdf_to_text_wrapper] -->|uses| MU[MinerU]
     P -->|uses| GR[GROBID]
     P -->|uses| FS[fsscanner]
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
-    CM[corpus_matrix] -->|uses corpus data from| T
+    CM[corpus_matrix] -->|receives data from| LEM[lemmatizer_wrapper]
+    LEM -->|receives data from| P
     CM -->|uses| SF[simplefield]
     CM -->|uses| LI[lineariterator]
     R[svd_retrieval] -->|uses matrix representations from| CM
-    R -->|uses| SVD[svdwrapper]
+    R -->|uses| SVD[svd_wrapper]
     A[aiagents] -.->|planned use of| R
 ```
 
@@ -127,6 +131,7 @@ Several repositories are deliberately small libraries. Some started because I ne
 
 | Project | Purpose |
 | --- | --- |
+| **[threadpool](https://github.com/witold-k/threadpool)** | Small fixed-size worker thread pool used by `fsscanner` for parallel jobs |
 | **[fsscanner](https://github.com/witold-k/fsscanner)** | Directory-tree scanning and sequential/parallel file-processing pipelines |
 | **[struct_extractors](https://github.com/witold-k/struct_extractors)** | Procedural macros for accessors, comparators, hashing wrappers, numeric behavior, and enum checks |
 | **[simplelexer](https://github.com/witold-k/simplelexer)** | Small zero-copy lexers for assignment-oriented text and `${...}` expressions |
@@ -143,9 +148,10 @@ Every arrow below explicitly reads as **"uses"**.
 ```mermaid
 flowchart LR
     SF[simplefield] -->|uses| LI[lineariterator]
-    PDF[pdf_to_text wrapper] -->|uses| MU[MinerU]
+    PDF[pdf_to_text_wrapper] -->|uses| MU[MinerU]
     PDF -->|uses| GR[GROBID]
     PDF -->|uses| FS[fsscanner]
+    FS -->|uses| TP[threadpool]
     PDF -->|uses| LX[simplelexer]
     PDF -->|uses| T[token_db]
     CM[corpus_matrix] -->|uses corpus data from| T
