@@ -182,10 +182,6 @@ building blocks. Separate repositories are useful when they keep responsibilitie
 and dependencies independent; they are not meant to turn every small idea into
 an actively maintained product.
 
-These are primarily personal projects, tools, and experiments, **not a portfolio
-designed around hiring**. Different repositories are at different stages, and
-some are intentionally finished, dormant, or exploratory.
-
 ## What ties these projects together?
 
 They are not intended to form one monolithic framework. The common thread is the way I like to explore software:
