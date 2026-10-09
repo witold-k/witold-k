@@ -39,7 +39,6 @@ When a status is uncertain, the entry deliberately makes a conservative assessme
 | [symbol_to_source_resolver](https://github.com/witold-k/symbol_to_source_resolver) | **Planned** | README explicitly states no working implementation yet; candidate C/C++, Rust and Java symbol-to-file resolution for future `aiagents` use. |
 | [logicequation](https://github.com/witold-k/logicequation) | **Experimentally usable · on hold** | Symbolic Boolean/bit-vector graph library; experimental, with original use case inactive. |
 | [sequencetransform](https://github.com/witold-k/sequencetransform) | **Experimentally usable · archived** | Implements sequence transforms and ordinal-pattern ideas; original project stopped, archive rather than actively maintained library. |
-| [shmemqueue](https://github.com/witold-k/shmemqueue) | **In progress (unverified)** | C++/Rust shared-memory queue code exists; no top-level README found. Needs an explicit scope/status and reliability review. |
 
 ## Applications, pipelines and build/development tools
 
@@ -52,7 +51,6 @@ When a status is uncertain, the entry deliberately makes a conservative assessme
 | [buildsystems](https://github.com/witold-k/buildsystems) | **In progress** | Build-system collection for CIDE; same external toolchain/non-portability constraint. |
 | [buildscripts](https://github.com/witold-k/buildscripts) | **Experimentally usable · maintenance needed** | Used for existing personal build workflows; cleanup and some bug fixes remain. |
 | [neovim-tmux-integration](https://github.com/witold-k/neovim-tmux-integration) | **Experimentally usable** | Daily personal editor/tmux configuration; environment-specific rather than general distribution. |
-| [hello_ultrascale](https://github.com/witold-k/hello_ultrascale) | **Experimentally usable · in progress** | Experimental Zynq UltraScale+ platform bring-up/tool integration; hardware/vendor tools required. |
 
 
 ## Maintenance guidelines
