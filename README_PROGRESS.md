@@ -47,9 +47,9 @@ When a status is uncertain, the entry deliberately makes a conservative assessme
 | [aiagents](https://github.com/witold-k/aiagents) | **Experimentally usable · in progress** | Working local agent runtime and workflows including Git-based release documentation; README notes incomplete test coverage and unfinished workflows. |
 | [pdf_to_text_wrapper](https://github.com/witold-k/pdf_to_text_wrapper) | **Experimentally usable** | PDF preprocessing orchestrator using MinerU/GROBID and specialized parsing/token components; relies on installed external backends. |
 | [lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper) | **Experimentally usable · in progress** | spaCy-backed per-file token/lemma output works; README still describes directory processing and integration as incomplete. |
-| [cide](https://github.com/witold-k/cide) | **Experimentally usable · in progress** | Author-environment build infrastructure; fresh checkout cannot reproduce build without externally managed crosstool-ng. |
-| [buildsystems](https://github.com/witold-k/buildsystems) | **In progress** | Build-system collection for CIDE; same external toolchain/non-portability constraint. |
-| [buildscripts](https://github.com/witold-k/buildscripts) | **Experimentally usable · maintenance needed** | Used for existing personal build workflows; cleanup and some bug fixes remain. |
+| [cide](https://github.com/witold-k/cide) | **Experimentally usable · in progress** | **NOT USABE OUTSIDE MY ENV** Author-environment build infrastructure; fresh checkout cannot reproduce build without externally managed crosstool-ng. |
+| [buildsystems](https://github.com/witold-k/buildsystems) | **In progress** | **NOT USABE OUTSIDE MY ENV** Build-system collection for CIDE; same external toolchain/non-portability constraint. |
+| [buildscripts](https://github.com/witold-k/buildscripts) | **Experimentally usable · maintenance needed** | **NOT USABE OUTSIDE MY ENV** Used for existing personal build workflows; cleanup and some bug fixes remain. |
 | [neovim-tmux-integration](https://github.com/witold-k/neovim-tmux-integration) | **Experimentally usable** | Daily personal editor/tmux configuration; environment-specific rather than general distribution. |
 
 
