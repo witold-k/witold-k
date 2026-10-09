@@ -39,9 +39,10 @@ flowchart LR
 This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
 
 - **[pdf_to_text_wrapper](https://github.com/witold-k/pdf_to_text_wrapper)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
-- **[lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper)** — wrapper for lemmatization in the corpus-processing experiments.
+- **[lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper)** — spaCy-backed Markdown-corpus lemmatization. Produces document-local token streams and token databases in two passes, merges a global vocabulary, and preserves linguistic annotations such as POS and dependency information.
+- **[ngram_token_lemma_tokenizer](https://github.com/witold-k/ngram_token_lemma_tokenizer)** — new Rust project for transforming existing token streams into unigram, bigram, and trigram representations, with plans to combine surface forms, lemmas, stems, and POS annotations. The transformation design is being developed; these features are not yet implemented.
 - **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
-- **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — constructs corpus-derived matrix representations for the document-search experiments.
+- **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — currently builds token/lemma co-occurrence count and PPMI matrices using sliding windows. The same matrix builders could later process transformed n-gram streams to explore bigram-by-bigram and trigram-by-trigram representations.
 - **[svd_wrapper](https://github.com/witold-k/svd_wrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations.
 - **[svd_retrieval](https://github.com/witold-k/svd_retrieval)** — retrieval layer for the SVD-based document-search experiment. It combines corpus-derived matrices with `svd_wrapper` to build latent representations, project queries into the same space, compare them with indexed content, and rank retrieval results.
 
@@ -67,10 +68,12 @@ flowchart TB
 
     PDF --> BACKENDS
     LEMMA --> MATRIX
+    LEMMA -.->|planned n-gram transformation| NGRAM[ngram_token_lemma_tokenizer]
+    NGRAM -.->|planned corpus features| MATRIX
     RETRIEVE -.->|future capability| AGENT[aiagents]
 ```
 
-The corpus data pipeline passes output from `pdf_to_text_wrapper` to `lemmatizer_wrapper`, then passes the lemmatizer's output to `corpus_matrix` for matrix construction. This describes data flow, not necessarily direct Rust crate dependencies.
+The corpus data pipeline passes Markdown output from `pdf_to_text_wrapper` to `lemmatizer_wrapper`, which produces lemma token streams, local/global token IDs, and spaCy annotations. The resulting streams can feed `corpus_matrix`. The new `ngram_token_lemma_tokenizer` is intended as an optional transformation stage between corpus preparation and matrix building; its proposed n-gram outputs are not implemented yet. This describes data flow, not necessarily direct Rust crate dependencies.
 
 The `pdf_to_text_wrapper` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
 
