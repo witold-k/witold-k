@@ -169,6 +169,23 @@ flowchart LR
     A -.->|planned use| SSR[symbol_to_source_resolver]
 ```
 
+## Why so many small repositories?
+
+The many small libraries are intentional. I prefer each library to solve one
+narrow problem with a small interface and as few dependencies as practical.
+The goal is **less long-term maintenance, not more**: once a component does its
+job reliably, it should need little attention and should not have to grow along
+with every project that uses it.
+
+The larger systems can grow organically by combining these relatively stable
+building blocks. Separate repositories are useful when they keep responsibilities
+and dependencies independent; they are not meant to turn every small idea into
+an actively maintained product.
+
+These are primarily personal projects, tools, and experiments, **not a portfolio
+designed around hiring**. Different repositories are at different stages, and
+some are intentionally finished, dormant, or exploratory.
+
 ## What ties these projects together?
 
 They are not intended to form one monolithic framework. The common thread is the way I like to explore software:
