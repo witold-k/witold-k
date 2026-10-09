@@ -173,7 +173,7 @@ flowchart LR
 
 The many small libraries are intentional. I prefer each library to solve one
 narrow problem with a small interface and as few dependencies as practical.
-The goal is **less long-term maintenance, not more**: once a component does its
+The goal is less long-term maintenance, not more: once a component does its
 job reliably, it should need little attention and should not have to grow along
 with every project that uses it.
 
