@@ -16,6 +16,8 @@ The `aiagents` / `aifix` line is its own project area.
 
 It must be presented separately from the local document-processing/search work. Shared libraries may appear in both dependency diagrams where appropriate, but that does not make the two project areas one system.
 
+The planned `symbol_to_source_resolver` repository belongs to AI-assisted software engineering as a future `aiagents` integration for mapping qualified C/C++, Rust, and Java symbols to source files. It is not implemented yet and must be marked as planned in prose and dependency diagrams.
+
 The separation describes the current project structure. In the longer-term direction, `aiagents` is intended to use the document-search/retrieval capabilities. This future integration should be shown as planned rather than by merging the two project areas into one architecture.
 
 ### Local document processing and search

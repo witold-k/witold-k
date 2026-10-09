@@ -12,6 +12,8 @@ Two current lines of experimentation are deliberately separate: AI-assisted soft
 
 **[aiagents](https://github.com/witold-k/aiagents)** is an experimental local-first agentic runtime. `aifix` is one application/workflow built on it for AI-assisted software engineering: analysis, build/test/fix cycles, code and documentation generation, reviews, and release documentation.
 
+- **[symbol_to_source_resolver](https://github.com/witold-k/symbol_to_source_resolver)** — planned, not yet implemented Rust library to resolve qualified C/C++, Rust, and Java symbols to one or more source files. Intended for future use by `aiagents` to find source locations from symbol names.
+
 #### Workflow
 
 ```mermaid
@@ -29,6 +31,7 @@ flowchart LR
 flowchart LR
     A[aiagents / aifix] -->|uses| FS[fsscanner]
     A -->|uses| SE[struct_extractors]
+    A -.->|planned use| SSR[symbol_to_source_resolver]
     A -.->|planned use| T[token_db]
     A -->|can use local LLM runtime| LL[llama.cpp]
     C[CIDE] -->|builds| LL
@@ -136,6 +139,7 @@ Several repositories are deliberately small libraries. Some started because I ne
 | --- | --- |
 | **[threadpool](https://github.com/witold-k/threadpool)** | Small fixed-size worker thread pool used by `fsscanner` for parallel jobs |
 | **[fsscanner](https://github.com/witold-k/fsscanner)** | Directory-tree scanning and sequential/parallel file-processing pipelines |
+| **[symbol_to_source_resolver](https://github.com/witold-k/symbol_to_source_resolver)** | Planned, not yet implemented symbol-to-source lookup library for C/C++, Rust, and Java; intended for future use by `aiagents` |
 | **[struct_extractors](https://github.com/witold-k/struct_extractors)** | Procedural macros for accessors, comparators, hashing wrappers, numeric behavior, and enum checks |
 | **[simplelexer](https://github.com/witold-k/simplelexer)** | Small zero-copy lexers for assignment-oriented text and `${...}` expressions |
 | **[lineariterator](https://github.com/witold-k/lineariterator)** | Strided and fixed-window iteration, including low-level pointer APIs and safe wrappers |
@@ -162,6 +166,7 @@ flowchart LR
     CM -->|uses| LI
     A[aiagents] -->|uses| FS
     A -->|uses| SE[struct_extractors]
+    A -.->|planned use| SSR[symbol_to_source_resolver]
 ```
 
 ## What ties these projects together?
