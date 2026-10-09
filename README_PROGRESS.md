@@ -2,7 +2,7 @@
 
 _Last reviewed: 2026-10-09. This is a qualitative overview based on repository documentation and visible implemented functionality, not a release certification or a substitute for tests._
 
-This page covers the reusable libraries **and** the larger tools/projects in this GitHub account. It complements the [main project overview](README.md), which describes purposes, data flows and dependencies.
+This page covers publicly presented reusable libraries **and** larger software tools/projects. It complements the [main project overview](README.md), which describes purposes, data flows and dependencies.
 
 ## Status definitions
 
@@ -54,9 +54,6 @@ When a status is uncertain, the entry deliberately makes a conservative assessme
 | [neovim-tmux-integration](https://github.com/witold-k/neovim-tmux-integration) | **Experimentally usable** | Daily personal editor/tmux configuration; environment-specific rather than general distribution. |
 | [hello_ultrascale](https://github.com/witold-k/hello_ultrascale) | **Experimentally usable · in progress** | Experimental Zynq UltraScale+ platform bring-up/tool integration; hardware/vendor tools required. |
 
-## Other repositories
-
-[cv](https://github.com/witold-k/cv) is professional-background documentation; [zukunft](https://github.com/witold-k/zukunft) is a personal planning repository; [witold-k](https://github.com/witold-k/witold-k) is the profile/index repository. They are intentionally **not given software-implementation maturity labels**.
 
 ## Maintenance guidelines
 
