@@ -4,6 +4,8 @@ I build software systems and small, focused tools, mostly in Rust. My projects r
 
 A recurring theme is to keep systems **small, explicit, inspectable, and locally controllable**: simple interfaces, limited dependencies, clear boundaries, and components that can be understood independently.
 
+For implementation maturity and current limitations across the repositories, see **[Project progress](README_PROGRESS.md)**.
+
 ## Current projects
 
 Two current lines of experimentation are deliberately separate: AI-assisted software engineering and local document/corpus processing. They are separate projects today, although the document-search capabilities are intended to become usable by `aiagents` later.
