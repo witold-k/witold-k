@@ -41,70 +41,48 @@ flowchart LR
 
 ### Local document processing and search
 
-This is a separate line of work around turning local documents into a searchable corpus and experimenting with classical numerical search methods, in particular latent representations based on SVD/LSA-style techniques.
+This is a separate line of work around preparing local documents as a searchable corpus and experimenting with token- and lemma-based representations. **SVD is not currently part of this search pipeline.**
 
-- **[pdf_to_text_wrapper](https://github.com/witold-k/pdf_to_text_wrapper)** — offline corpus-preparation wrapper/orchestration layer. It delegates PDF extraction to external backends such as MinerU and GROBID, then normalizes their output and prepares structured text and token data for the corpus. This is normally a one-time preprocessing step when documents are added or rebuilt, not part of the regular search/runtime path.
-- **[lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper)** — spaCy-backed Markdown-corpus lemmatization. Produces document-local token streams and token databases in two passes, merges a global vocabulary, and preserves linguistic annotations such as POS and dependency information.
-- **[ngram_token_lemma_tokenizer](https://github.com/witold-k/ngram_token_lemma_tokenizer)** — new Rust project for transforming existing token streams into unigram, bigram, and trigram representations, with plans to combine surface forms, lemmas, stems, and POS annotations. The transformation design is being developed; these features are not yet implemented.
-- **[token_db](https://github.com/witold-k/token_db)** — compact Rust token database with stable numeric IDs, frequency tracking, merging, and binary persistence.
-- **[corpus_matrix](https://github.com/witold-k/corpus_matrix)** — currently builds token/lemma co-occurrence count and PPMI matrices using sliding windows. The same matrix builders could later process transformed n-gram streams to explore bigram-by-bigram and trigram-by-trigram representations.
-- **[svd_wrapper](https://github.com/witold-k/svd_wrapper)** — experimental backend-independent dense SVD interface with CPU/LAPACK, CUDA/cuSOLVER, and Julia implementations.
-- **[svd_retrieval](https://github.com/witold-k/svd_retrieval)** — retrieval layer for the SVD-based document-search experiment. It combines corpus-derived matrices with `svd_wrapper` to build latent representations, project queries into the same space, compare them with indexed content, and rank retrieval results.
+- **[pdf_to_text_wrapper](https://github.com/witold-k/pdf_to_text_wrapper)** — offline PDF corpus preparation via external extraction backends such as MinerU and GROBID.
+- **[lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper)** — spaCy-backed lemmatization, token streams, and vocabulary preparation.
+- **[ngram_token_lemma_tokenizer](https://github.com/witold-k/ngram_token_lemma_tokenizer)** — planned transformations of token/lemma streams into n-gram representations.
+- **[token_db](https://github.com/witold-k/token_db)** — token IDs, occurrence counts, merging, and binary persistence.
+- **[retrieval](https://github.com/witold-k/retrieval)** — formerly `corpus_matrix`. Its currently documented implementation constructs token co-occurrence Count and PPMI matrices from token streams. The broader search/retrieval approach is still evolving; this is not a claim of a finished search engine.
 
 #### Data flow
 
 ```mermaid
 flowchart TB
-    PDF[PDF documents]
-
-    subgraph PREP[One-time / offline corpus preparation - pdf_to_text_wrapper]
-        direction LR
-        BACKENDS[MinerU / GROBID] --> CONVERT[pdf_to_text_wrapper: normalize / organize]
-        CONVERT --> LEMMA[lemmatizer_wrapper: lemmatize / prepare corpus data]
-    end
-
-    subgraph SEARCH[Search representation and retrieval]
-        direction LR
-        MATRIX[corpus_matrix] --> RETRIEVAL[svd_retrieval]
-        SVD[svd_wrapper] --> RETRIEVAL
-        RETRIEVAL --> LATENT[latent representation]
-        LATENT --> RETRIEVE[query projection / similarity / ranking]
-    end
-
-    PDF --> BACKENDS
-    LEMMA --> MATRIX
-    LEMMA -.->|planned n-gram transformation| NGRAM[ngram_token_lemma_tokenizer]
-    NGRAM -.->|planned corpus features| MATRIX
-    RETRIEVE -.->|future capability| AGENT[aiagents]
+    PDF[PDF documents] --> EXTRACT[pdf_to_text_wrapper]
+    EXTRACT --> LEMMA[lemmatizer_wrapper]
+    LEMMA --> TOKEN[token streams and token_db]
+    TOKEN --> RET[retrieval: Count / PPMI matrices]
+    TOKEN -.->|planned n-gram transformation| NGRAM[ngram_token_lemma_tokenizer]
+    NGRAM -.->|possible input| RET
+    RET -.->|future retrieval integration| AGENT[aiagents]
 ```
 
-The corpus data pipeline passes Markdown output from `pdf_to_text_wrapper` to `lemmatizer_wrapper`, which produces lemma token streams, local/global token IDs, and spaCy annotations. The resulting streams can feed `corpus_matrix`. The new `ngram_token_lemma_tokenizer` is intended as an optional transformation stage between corpus preparation and matrix building; its proposed n-gram outputs are not implemented yet. This describes data flow, not necessarily direct Rust crate dependencies.
+PDF extraction is an offline preprocessing step, not part of regular query execution. The diagram describes the conceptual data flow, not necessarily direct crate dependencies. Further query matching and ranking remain subjects of development; no SVD-based retrieval is currently assumed.
 
-The `pdf_to_text_wrapper` stage is preprocessing: it normally runs only when corpus data needs to be created or refreshed and is not part of regular query execution.
-
-`corpus_matrix` is the matrix-construction stage of this pipeline. The representation is intentionally open to experimentation: it may be a conventional term-document representation, but it may also encode word co-occurrence, for example by counting words that occur together within a sliding window.
-
-`svd_retrieval` is the retrieval-specific layer above those matrices. It uses `svd_wrapper` for dense SVD and is intended to own the parts that turn a corpus representation into something searchable: latent-space construction, document or chunk representation, query projection, similarity calculation, and ranking. The exact retrieval model is still deliberately experimental rather than fixed behind a premature abstraction.
-
-Corpus preparation, matrix construction, and the SVD-based retrieval layer now have dedicated repositories. Integration with `aiagents` remains a future step.
-
-#### Repository dependencies
+#### Repository relationships
 
 ```mermaid
 flowchart LR
-    P[pdf_to_text_wrapper] -->|uses| MU[MinerU]
-    P -->|uses| GR[GROBID]
-    P -->|uses| FS[fsscanner]
+    P[pdf_to_text_wrapper] -->|uses| FS[fsscanner]
     P -->|uses| LX[simplelexer]
     P -->|uses| T[token_db]
-    CM[corpus_matrix] -->|receives data from| LEM[lemmatizer_wrapper]
-    LEM -->|receives data from| P
-    CM -->|uses| SF[simplefield]
-    CM -->|uses| LI[lineariterator]
-    R[svd_retrieval] -->|uses matrix representations from| CM
-    R -->|uses| SVD[svd_wrapper]
-    A[aiagents] -.->|planned use of| R
+    P -->|external backends| MU[MinerU / GROBID]
+    P -.->|corpus data| LEM[lemmatizer_wrapper]
+    LEM -.->|token streams| R[retrieval]
+    R -->|uses| SF[simplefield]
+    R -->|uses| LI[lineariterator]
+    R -->|uses corpus tokens| T
+    A[aiagents] -.->|possible future integration| R
 ```
+
+### Numerical experiments (independent)
+
+**[svd_wrapper](https://github.com/witold-k/svd_wrapper)** is a standalone experimental library for backend-independent dense SVD using CPU/LAPACK, CUDA/cuSOLVER, and Julia. It is **not currently used for document search or retrieval**. It may be explored for that purpose in the future, but no dependency or integration is planned as a current implementation requirement.
 
 ## Build infrastructure
 
@@ -163,9 +141,9 @@ flowchart LR
     FS -->|uses| TP[threadpool]
     PDF -->|uses| LX[simplelexer]
     PDF -->|uses| T[token_db]
-    CM[corpus_matrix] -->|uses corpus data from| T
-    CM -->|uses| SF
-    CM -->|uses| LI
+    R[retrieval] -->|uses corpus data from| T
+    R -->|uses| SF
+    R -->|uses| LI
     A[aiagents] -->|uses| FS
     A -->|uses| SE[struct_extractors]
     A -.->|planned use| SSR[symbol_to_source_resolver]
