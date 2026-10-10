@@ -43,7 +43,7 @@ When a status is uncertain, the entry deliberately makes a conservative assessme
 
 | Project | Current status | Notes / remaining limitations |
 | --- | --- | --- |
-| [aiagents](https://github.com/witold-k/aiagents) | **Experimentally usable · in progress** | Working local agent runtime and workflows including Git-based release documentation; README notes incomplete test coverage and unfinished workflows. |
+| [aiagents](https://github.com/witold-k/aiagents) | **Experimentally usable · in progress** | Working local agent runtime and workflows including Git-based release documentation. Standalone `aifix_runtest` executes eight Cargo/CMake/Meson/Maven repair fixtures; a recorded local Devstral run passed 8/8 in 227.05 s total fix/build time. Results and per-fixture logs are generated; [documented results](https://github.com/witold-k/aiagents/blob/master/runtests/README.md). Semantic API invariants, repeatability across runs, broader test coverage, and model comparisons are not yet established. |
 | [pdf_to_text_wrapper](https://github.com/witold-k/pdf_to_text_wrapper) | **Experimentally usable** | PDF preprocessing orchestrator using MinerU/GROBID and specialized parsing/token components; relies on installed external backends. |
 | [lemmatizer_wrapper](https://github.com/witold-k/lemmatizer_wrapper) | **Experimentally usable · in progress** | spaCy-backed per-file token/lemma output works; README still describes directory processing and integration as incomplete. |
 | [cide](https://github.com/witold-k/cide) | **Experimentally usable · in progress** | **NOT USABE OUTSIDE MY ENV** Author-environment build infrastructure; fresh checkout cannot reproduce build without externally managed crosstool-ng. |
