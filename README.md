@@ -14,6 +14,8 @@ Two current lines of experimentation are deliberately separate: AI-assisted soft
 
 **[aiagents](https://github.com/witold-k/aiagents)** is an experimental local-first agentic runtime. `aifix` is one application/workflow built on it for AI-assisted software engineering: analysis, build/test/fix cycles, code and documentation generation, reviews, and release documentation.
 
+The repository now includes a standalone `aifix_runtest` runner for eight end-to-end repair fixtures across **Cargo/Rust, CMake/C++, Meson/C++, and Maven/Java** (simple compilation fixes and factory API refactoring). A recorded local Devstral run passed **8/8 fixtures** with **227.05 seconds** of summed fix/build command time. Run `just runtest` from the repository root; the runner records JSON results and logs. See the [runtime-test documentation and result table](https://github.com/witold-k/aiagents/blob/master/runtests/README.md) and [recorded JSON results](https://github.com/witold-k/aiagents/blob/master/runtests/results.json). Passing build commands do not yet establish that all intended API constraints were preserved; repeatability and model comparisons remain to be evaluated.
+
 - **[symbol_to_source_resolver](https://github.com/witold-k/symbol_to_source_resolver)** — experimental Rust library for mapping Rust, Java, and C/C++ symbols to candidate source files. Cargo metadata, conventional Maven source layouts, and `compile_commands.json` provide source discovery; tolerant parsing allows lookups despite source syntax errors. Integration into `aiagents` remains planned.
 
 #### Workflow
