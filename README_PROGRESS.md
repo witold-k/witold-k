@@ -1,6 +1,6 @@
 # Project implementation progress
 
-_Last reviewed: 2026-10-09. This is a qualitative overview based on repository documentation and visible implemented functionality, not a release certification or a substitute for tests._
+_Last reviewed: 2026-10-10. This is a qualitative overview based on repository documentation and visible implemented functionality, not a release certification or a substitute for tests._
 
 This page covers publicly presented reusable libraries **and** larger software tools/projects. It complements the [main project overview](README.md), which describes purposes, data flows and dependencies.
 
@@ -32,9 +32,8 @@ When a status is uncertain, the entry deliberately makes a conservative assessme
 | [simplefield](https://github.com/witold-k/simplefield) | **Feature-complete (scope)** | Row-/column-major contiguous 2D storage and views implemented; not a general tensor library. |
 | [unitscale](https://github.com/witold-k/unitscale) | **Feature-complete (scope)** | Compile-time decimal scaling and angle wrappers implemented; intentionally does not model physical dimensions. |
 | [token_db](https://github.com/witold-k/token_db) | **Feature-complete (scope)** | Stable token IDs, counts, merges and versioned binary storage implemented; ordered document streams intentionally out of scope. |
-| [corpus_matrix](https://github.com/witold-k/corpus_matrix) | **Experimentally usable** | Token co-occurrence Count and PPMI matrices implemented; later matrix variants and retrieval experiments remain open. |
-| [svd_wrapper](https://github.com/witold-k/svd_wrapper) | **In progress** | CPU, CUDA and Julia dense-SVD backends implemented/tested; consistency and consolidation ongoing. OpenCL planned, ROCm placeholder. Explicitly not production-ready. |
-| [svd_retrieval](https://github.com/witold-k/svd_retrieval) | **Raw** | Retrieval model and architecture documented; end-to-end latent indexing/query projection/ranking not verified as complete. |
+| [retrieval](https://github.com/witold-k/retrieval) | **Experimentally usable (matrix construction)** | Renamed from `corpus_matrix`. Count and PPMI co-occurrence matrix builders are documented and implemented; broader retrieval/search functionality remains experimental and is not declared complete. No SVD dependency for search. |
+| [svd_wrapper](https://github.com/witold-k/svd_wrapper) | **In progress** | Standalone numerical library, not part of the current retrieval/search pipeline; CPU, CUDA and Julia dense-SVD backends implemented/tested; consistency and consolidation ongoing. OpenCL planned, ROCm placeholder. Explicitly not production-ready. |
 | [ngram_token_lemma_tokenizer](https://github.com/witold-k/ngram_token_lemma_tokenizer) | **Raw** | Initial project skeleton exists (currently only a minimal `main.rs` under `src`); token/lemma n-gram transformation remains to be implemented. |
 | [symbol_to_source_resolver](https://github.com/witold-k/symbol_to_source_resolver) | **Planned** | README explicitly states no working implementation yet; candidate C/C++, Rust and Java symbol-to-file resolution for future `aiagents` use. |
 | [logicequation](https://github.com/witold-k/logicequation) | **Experimentally usable · on hold** | Symbolic Boolean/bit-vector graph library; experimental, with original use case inactive. |
