@@ -41,11 +41,9 @@ Do not merge this conceptually with `aiagents` / `aifix`. The document-search pr
 
 ### Build infrastructure
 
-The actual relationships between the build repositories must be represented correctly:
+The actual relationships between the remaining build repositories must be represented correctly:
 
-- `CIDE` uses `buildsystems` for building.
 - `CIDE` uses tools from `buildscripts`.
-- `buildsystems` also uses tools from `buildscripts`.
 - CIDE builds many software packages, including Neovim and tmux.
 
 Avoid vague categories such as "software stacks" when they obscure these concrete relationships.
@@ -92,7 +90,6 @@ Use more specific labels where useful, for example:
 
 ```text
 CIDE -->|uses tools from| buildscripts
-CIDE -->|uses build systems from| buildsystems
 CIDE -->|builds| Neovim
 ```
 
